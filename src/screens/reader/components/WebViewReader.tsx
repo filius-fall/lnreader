@@ -20,14 +20,22 @@ import { getBatteryLevelSync } from 'react-native-device-info';
 import * as Speech from 'expo-speech';
 import { PLUGIN_STORAGE } from '@utils/Storages';
 import { useChapterContext } from '../ChapterContext';
+import {
+  insertBookmark,
+  getBookmarksForChapter,
+} from '@database/queries/BookmarkQueries';
+import { showToast } from '@utils/showToast';
 
 type WebViewPostEvent = {
   type: string;
   data?: { [key: string]: string | number };
 };
 
+import { Bookmark } from '@database/types';
+
 type WebViewReaderProps = {
   onPress(): void;
+  bookmark?: Bookmark;
 };
 
 const onLogMessage = (payload: { nativeEvent: { data: string } }) => {
@@ -47,7 +55,7 @@ const assetsUriPrefix = __DEV__
   ? 'http://localhost:8081/assets'
   : 'file:///android_asset';
 
-const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
+const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress, bookmark }) => {
   const {
     novel,
     chapter,
@@ -76,6 +84,10 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
     [chapter.id],
   );
   const batteryLevel = useMemo(() => getBatteryLevelSync(), []);
+  const bookmarks = useMemo(
+    () => getBookmarksForChapter(chapter.id),
+    [chapter.id],
+  );
   const plugin = getPlugin(novel?.pluginId);
   const pluginCustomJS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.js`;
   const pluginCustomCSS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.css`;
@@ -114,6 +126,22 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
       mmkvListener.remove();
     };
   }, [webViewRef]);
+
+  useEffect(() => {
+    if (bookmark) {
+      webViewRef.current?.injectJavaScript(
+        `
+        var bookmark = ${JSON.stringify(bookmark)};
+        var position = JSON.parse(bookmark.position);
+        var startNode = getNodeFromPath(position.startContainerPath);
+        if(startNode){
+          startNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        `,
+      );
+    }
+  }, [bookmark, webViewRef]);
+
   return (
     <WebView
       ref={webViewRef}
@@ -158,6 +186,17 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
             break;
           case 'stop-speak':
             Speech.stop();
+            break;
+          case 'bookmark':
+            if (event.data && event.data.text && event.data.position) {
+              insertBookmark(
+                novel.id,
+                chapter.id,
+                event.data.text as string,
+                event.data.position as string,
+              );
+              showToast('Bookmark saved');
+            }
             break;
         }
       }}
@@ -242,6 +281,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
                   nextChapter,
                   prevChapter,
                   batteryLevel,
+                  bookmarks,
                   autoSaveInterval: 2222,
                   DEBUG: __DEV__,
                   strings: {

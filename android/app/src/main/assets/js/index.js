@@ -326,6 +326,50 @@ const TTSController = () => {
   );
 };
 
+const BookmarkButton = () => {
+  return button(
+    {
+      id: 'BookmarkButton',
+      class: () => (reader.bookmarkButtonVisible.val ? '' : 'hidden'),
+      onclick: e => {
+        e.stopPropagation();
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+        const text = selection.toString();
+
+        // This is a simplified way to get the position.
+        // A more robust solution would be to use a library like rangy or create a CFI.
+        const position = {
+          startContainerPath: getPath(range.startContainer),
+          startOffset: range.startOffset,
+          endContainerPath: getPath(range.endContainer),
+          endOffset: range.endOffset,
+        };
+
+        reader.post({
+          type: 'bookmark',
+          data: {
+            text: text,
+            position: JSON.stringify(position),
+          },
+        });
+        selection.removeAllRanges();
+      },
+    },
+    'Bookmark',
+  );
+};
+
+function getPath(node) {
+  let path = [];
+  while (node.parentNode) {
+    let index = Array.from(node.parentNode.childNodes).indexOf(node);
+    path.unshift(index);
+    node = node.parentNode;
+  }
+  return path;
+}
+
 const ReaderUI = () => {
   return div(
     ToolWrapper(),
@@ -333,6 +377,7 @@ const ReaderUI = () => {
     ModalWrapper(),
     Footer(),
     ChapterEnding(),
+    BookmarkButton(),
   );
 };
 

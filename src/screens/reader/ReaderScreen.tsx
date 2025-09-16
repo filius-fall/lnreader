@@ -60,9 +60,11 @@ type ChapterContentProps = ChapterScreenProps & {
 };
 
 export const ChapterContent = ({
+  route,
   navigation,
   openDrawer,
 }: ChapterContentProps) => {
+  const { bookmark } = route.params;
   const { left, right } = useSafeAreaInsets();
   const { novel, chapter } = useChapterContext();
   const readerSheetRef = useRef<BottomSheetModalMethods>(null);
@@ -128,7 +130,7 @@ export const ChapterContent = ({
       {loading ? (
         <ChapterLoadingScreen />
       ) : (
-        <WebViewReader onPress={hideHeader} />
+        <WebViewReader onPress={hideHeader} bookmark={bookmark} />
       )}
       <ReaderBottomSheetV2 bottomSheetRef={readerSheetRef} />
       {!hidden ? (

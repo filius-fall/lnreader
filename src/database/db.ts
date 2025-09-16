@@ -18,6 +18,7 @@ import {
   createChapterIndexQuery,
   dropChapterIndexQuery,
 } from './tables/ChapterTable';
+import { createBookmarkTableQuery } from './tables/BookmarkTable';
 
 import { createRepositoryTableQuery } from './tables/RepositoryTable';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
@@ -53,6 +54,7 @@ export const createTables = () => {
       db.runSync(createCategoryTriggerQuery);
       db.runSync(createChapterIndexQuery);
       db.runSync(createRepositoryTableQuery);
+      db.runSync(createBookmarkTableQuery);
       db.runSync(createNovelTriggerQueryInsert);
       db.runSync(createNovelTriggerQueryUpdate);
       db.runSync(createNovelTriggerQueryDelete);

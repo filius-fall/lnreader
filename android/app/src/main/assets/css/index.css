@@ -173,3 +173,21 @@ td {
   display: block;
   width: 100%;
 }
+
+#BookmarkButton {
+  position: fixed;
+  bottom: 50px;
+  right: 20px;
+  z-index: 9999;
+  background-color: var(--theme-primary);
+  color: var(--theme-onPrimary);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#BookmarkButton.hidden {
+  display: none;
+}

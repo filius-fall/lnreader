@@ -9,6 +9,7 @@ window.reader = new (function () {
     prevChapter,
     batteryLevel,
     autoSaveInterval,
+    bookmarks,
     DEBUG,
     strings,
   } = initialReaderConfig;
@@ -44,6 +45,7 @@ window.reader = new (function () {
 
   this.layoutEvent = undefined;
   this.chapterEndingVisible = van.state(false);
+  this.bookmarkButtonVisible = van.state(false);
 
   this.post = obj => window.ReactNativeWebView.postMessage(JSON.stringify(obj));
   this.refresh = () => {
@@ -122,6 +124,43 @@ window.reader = new (function () {
     console.warn = console.log;
     console.error = console.log;
   }
+  document.addEventListener('selectionchange', () => {
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      this.bookmarkButtonVisible.val = true;
+    } else {
+      this.bookmarkButtonVisible.val = false;
+    }
+  });
+
+  function getNodeFromPath(path) {
+    let node = document;
+    for (let i = 0; i < path.length; i++) {
+      node = node.childNodes[path[i]];
+    }
+    return node;
+  }
+
+  function highlightBookmarks() {
+    if (bookmarks) {
+      bookmarks.forEach(bookmark => {
+        try {
+          const position = JSON.parse(bookmark.position);
+          const startNode = getNodeFromPath(position.startContainerPath);
+          const endNode = getNodeFromPath(position.endContainerPath);
+          const range = document.createRange();
+          range.setStart(startNode, position.startOffset);
+          range.setEnd(endNode, position.endOffset);
+          const span = document.createElement('span');
+          span.className = 'highlight';
+          range.surroundContents(span);
+        } catch (e) {
+          console.log('Error highlighting bookmark:', e);
+        }
+      });
+    }
+  }
+
   // end reader
 })();
 
@@ -426,6 +465,7 @@ ro.observe(reader.chapterElement);
 window.addEventListener('load', () => {
   document.fonts.ready.then(() => {
     requestAnimationFrame(() => setTimeout(calculatePages, 0));
+    highlightBookmarks();
   });
 });
 

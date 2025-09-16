@@ -13,6 +13,7 @@ import { ThemeColors } from '@theme/types';
 import { bookmarkChapter } from '@database/queries/ChapterQueries';
 import { useChapterContext } from '../ChapterContext';
 import { useNovelContext } from '@screens/novel/NovelContext';
+import { useNavigation } from '@react-navigation/native';
 
 interface ReaderAppbarProps {
   theme: ThemeColors;
@@ -31,6 +32,7 @@ const ReaderAppbar = ({
 }: ReaderAppbarProps) => {
   const { chapter, novel } = useChapterContext();
   const { statusBarHeight } = useNovelContext();
+  const navigation = useNavigation();
 
   const entering = () => {
     'worklet';
@@ -105,6 +107,17 @@ const ReaderAppbar = ({
             {chapter.name}
           </Text>
         </View>
+        <IconButtonV2
+          name="bookmark-multiple-outline"
+          size={24}
+          onPress={() =>
+            navigation.navigate('Bookmarks', {
+              novel,
+            })
+          }
+          color={theme.onSurface}
+          theme={theme}
+        />
         <IconButtonV2
           name={bookmarked ? 'bookmark' : 'bookmark-outline'}
           size={24}

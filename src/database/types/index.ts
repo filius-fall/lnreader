@@ -115,3 +115,12 @@ export interface Repository {
   id: number;
   url: string;
 }
+
+export interface Bookmark {
+  id: number;
+  novelId: number;
+  chapterId: number;
+  text: string;
+  position: string;
+  createdAt: string;
+}

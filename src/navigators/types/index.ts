@@ -105,6 +105,10 @@ export type ReaderStackParamList = {
   Chapter: {
     novel: NovelInfo;
     chapter: ChapterInfo;
+    bookmark?: Bookmark;
+  };
+  Bookmarks: {
+    novel: NovelInfo;
   };
 };
 
