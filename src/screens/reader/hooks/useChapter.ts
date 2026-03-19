@@ -125,6 +125,7 @@ export default function useChapter(
     async (navChapter?: ChapterInfo) => {
       try {
         const chap = navChapter ?? chapter;
+        const totalPages = novel.totalPages ?? 0;
         const cachedText = chapterTextCache.get(chap.id);
         const text = cachedText ?? loadChapterText(chap.id, chap.path);
         const [nextChapResult, prevChapResult, awaitedText] = await Promise.all(
@@ -142,8 +143,8 @@ export default function useChapter(
         const currentPage = Number(chap.page);
         if (
           !nextChap &&
-          novel.totalPages > 0 &&
-          currentPage < novel.totalPages
+          totalPages > 0 &&
+          currentPage < totalPages
         ) {
           const nextPage = String(currentPage + 1);
           try {

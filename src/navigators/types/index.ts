@@ -76,6 +76,7 @@ export type SettingsStackParamList = {
   Settings: undefined;
   GeneralSettings: undefined;
   ReaderSettings: undefined;
+  AISettings: undefined;
   TrackerSettings: undefined;
   BackupSettings: undefined;
   AppearanceSettings: undefined;
@@ -172,6 +173,10 @@ export type BackupSettingsScreenProps = StackScreenProps<
 export type AdvancedSettingsScreenProps = StackScreenProps<
   SettingsStackParamList,
   'AdvancedSettings'
+>;
+export type AiSettingsScreenProps = StackScreenProps<
+  SettingsStackParamList,
+  'AISettings'
 >;
 
 export type RespositorySettingsScreenProps = CompositeScreenProps<

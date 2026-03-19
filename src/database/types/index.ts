@@ -110,3 +110,32 @@ export interface Repository {
   id: number;
   url: string;
 }
+
+export interface AiNovelInfo {
+  id: number;
+  novelId: number;
+  enabled: boolean | null;
+  status: 'idle' | 'indexing' | 'ready' | 'error' | string;
+  backendNamespace: string | null;
+  lastIndexedAt: string | null;
+  lastError: string | null;
+  indexedChapterCount: number | null;
+  indexedChunkCount: number | null;
+  lastIndexedRevision: string | null;
+}
+
+export interface AiChunkInfo {
+  id: number;
+  novelId: number;
+  chapterId: number;
+  chapterPosition: number;
+  chapterPage: string | null;
+  chunkIndex: number;
+  startOffset: number;
+  endOffset: number;
+  startProgress: number;
+  endProgress: number;
+  textPreview: string;
+  checksum: string;
+  remoteChunkId: string | null;
+}

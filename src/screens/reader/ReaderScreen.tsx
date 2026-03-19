@@ -18,6 +18,7 @@ import { useBackHandler } from '@hooks/index';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, View } from 'react-native';
 import { Drawer } from 'react-native-drawer-layout';
+import AskAiModal from './components/AskAiModal';
 
 const Chapter = ({ route, navigation }: ChapterScreenProps) => {
   const [open, setOpen] = useState(false);
@@ -76,6 +77,13 @@ export const ChapterContent = ({
 
   const { hidden, loading, error, webViewRef, hideHeader, refetch } =
     useChapterContext();
+  const [aiVisible, setAiVisible] = useState(false);
+  const [selectedText, setSelectedText] = useState('');
+
+  const openAi = useCallback((text: string) => {
+    setSelectedText(text);
+    setAiVisible(true);
+  }, []);
 
   const scrollToStart = () =>
     requestAnimationFrame(() => {
@@ -128,8 +136,16 @@ export const ChapterContent = ({
       {loading ? (
         <ChapterLoadingScreen />
       ) : (
-        <WebViewReader onPress={hideHeader} />
+        <WebViewReader onPress={hideHeader} onAskAi={openAi} />
       )}
+      <AskAiModal
+        visible={aiVisible}
+        onDismiss={() => setAiVisible(false)}
+        selectedText={selectedText}
+        novel={novel}
+        chapter={chapter}
+        progress={chapter.progress ?? 0}
+      />
       <ReaderBottomSheetV2 bottomSheetRef={readerSheetRef} />
       {!hidden ? (
         <>

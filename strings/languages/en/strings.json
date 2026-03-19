@@ -8,6 +8,51 @@
     "version": "Version",
     "whatsNew": "What's new"
   },
+  "ai": {
+    "settings": {
+      "title": "AI",
+      "backend": "Backend",
+      "baseUrl": "Backend URL",
+      "apiKey": "API key",
+      "timeout": "Timeout (ms)",
+      "models": "Models",
+      "embeddingModel": "Embeddings",
+      "rerankerModel": "Reranker",
+      "answerModel": "Answer model",
+      "modelInfo": "This build is tuned for BAAI/bge-m3, hybrid vector + BM25 retrieval, BAAI/bge-reranker-v2-m3, and qwen/qwen3-235b-a22b-2507.",
+      "enable": "Enable AI feature",
+      "disable": "Disable AI feature",
+      "enabledToast": "AI feature enabled",
+      "disabledToast": "AI feature disabled",
+      "footer": "Configure your retrieval backend here. Novel indexing and Ask AI use this endpoint."
+    },
+    "reader": {
+      "askTitle": "Ask AI",
+      "ask": "Ask",
+      "answer": "Answer",
+      "question": "Question",
+      "selectedText": "Selected text",
+      "citations": "Sources",
+      "noSpoilers": "Answers are limited to downloaded, indexed content up to your current reading progress."
+    },
+    "novel": {
+      "enable": "Enable AI for this novel",
+      "reindex": "Reindex AI for this novel"
+    },
+    "indexing": {
+      "started": "AI indexing queued",
+      "downloadingChapter": "Downloading %{chapter}",
+      "processingChapter": "Indexing %{chapter}",
+      "ready": "AI index ready"
+    },
+    "errors": {
+      "configureBackend": "Configure the AI backend before using this feature.",
+      "enableFeature": "Enable the AI feature in Settings before using it.",
+      "novelNotFound": "Novel not found.",
+      "notReady": "AI is not ready for this novel yet.",
+      "noContext": "No spoiler-safe context is available yet."
+    }
+  },
   "advancedSettings": "Advanced",
   "advancedSettingsScreen": {
     "cachedNovelsDeletedToast": "Cached novels deleted",
@@ -569,6 +614,7 @@
     "LOCAL_BACKUP": "Local Backup",
     "LOCAL_RESTORE": "Local Restore",
     "MIGRATE_NOVEL": "Migrating Novel",
-    "DOWNLOAD_CHAPTER": "Downloading Chapter"
+    "DOWNLOAD_CHAPTER": "Downloading Chapter",
+    "INDEX_NOVEL_AI": "Indexing AI"
   }
 }

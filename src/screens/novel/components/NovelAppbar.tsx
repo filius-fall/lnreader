@@ -77,10 +77,12 @@ const NovelAppbar = ({
   isLocal,
   downloadChapters,
   deleteChapters,
-  showEditInfoModal,
-  downloadCustomChapterModal,
-  setCustomNovelCover,
-  goBack,
+    showEditInfoModal,
+    downloadCustomChapterModal,
+    setCustomNovelCover,
+    toggleAi,
+    aiLabel,
+    goBack,
   shareNovel,
   showJumpToChapterModal,
   headerOpacity,
@@ -93,6 +95,8 @@ const NovelAppbar = ({
   showEditInfoModal: React.Dispatch<React.SetStateAction<boolean>>;
   downloadCustomChapterModal: () => void;
   setCustomNovelCover: () => Promise<void>;
+  toggleAi: () => void;
+  aiLabel: string;
   goBack: () => void;
   shareNovel: () => void;
   showJumpToChapterModal: (arg: boolean) => void;
@@ -180,8 +184,12 @@ const NovelAppbar = ({
         label: getString('novelScreen.edit.cover'),
         onPress: () => setCustomNovelCover(),
       },
+      {
+        label: aiLabel,
+        onPress: () => toggleAi(),
+      },
     ],
-    [showEditInfoModal, setCustomNovelCover],
+    [aiLabel, setCustomNovelCover, showEditInfoModal, toggleAi],
   );
 
   const openDlMenu = useCallback(() => showDownloadMenu(true), []);

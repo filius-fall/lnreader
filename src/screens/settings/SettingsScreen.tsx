@@ -49,6 +49,16 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           theme={theme}
         />
         <List.Item
+          title={getString('ai.settings.title')}
+          icon="robot-outline"
+          onPress={() =>
+            navigation.navigate('SettingsStack', {
+              screen: 'AISettings',
+            })
+          }
+          theme={theme}
+        />
+        <List.Item
           title="Repositories"
           icon="github"
           onPress={() =>

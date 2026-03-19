@@ -19,12 +19,24 @@ export {
   type RepositoryRow,
   type RepositoryInsert,
 } from './repository';
+export {
+  aiNovel as aiNovelSchema,
+  type AiNovelRow,
+  type AiNovelInsert,
+} from './aiNovel';
+export {
+  aiChunk as aiChunkSchema,
+  type AiChunkRow,
+  type AiChunkInsert,
+} from './aiChunk';
 
 import { category } from './category';
 import { novel } from './novel';
 import { chapter } from './chapter';
 import { novelCategory } from './novelCategory';
 import { repository } from './repository';
+import { aiNovel } from './aiNovel';
+import { aiChunk } from './aiChunk';
 
 /**
  * Unified schema object containing all database tables
@@ -36,6 +48,8 @@ export const schema = {
   chapter,
   novelCategory,
   repository,
+  aiNovel,
+  aiChunk,
 } as const;
 
 export type Schema = typeof schema;

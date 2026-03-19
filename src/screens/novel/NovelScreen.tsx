@@ -7,7 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { Portal, Appbar, Snackbar } from 'react-native-paper';
-import { useDownload, useTheme } from '@hooks/persisted';
+import { useAi, useAiSettings, useDownload, useTheme } from '@hooks/persisted';
 import JumpToChapterModal from './components/JumpToChapterModal';
 import { Actionbar } from '../../components/Actionbar/Actionbar';
 import EditInfoModal from './components/EditInfoModal';
@@ -32,6 +32,8 @@ import { ThemeColors } from '@theme/types';
 import { SafeAreaView } from '@components';
 import { useNovelContext } from './NovelContext';
 import { LegendListRef } from '@legendapp/list';
+import { getAiNovel } from '@database/queries/AiQueries';
+import { showToast } from '@utils/showToast';
 
 const Novel = ({ route, navigation }: NovelScreenProps) => {
   const {
@@ -53,9 +55,12 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
 
   const theme = useTheme();
   const { downloadChapters } = useDownload();
+  const { indexNovel } = useAi();
+  const aiSettings = useAiSettings();
 
   const [selected, setSelected] = useState<ChapterInfo[]>([]);
   const [editInfoModal, showEditInfoModal] = useState(false);
+  const [aiEnabled, setAiEnabled] = useState(false);
 
   const chapterListRef = useRef<LegendListRef | null>(null);
 
@@ -102,6 +107,13 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
     deleteChapters(chapters.filter(c => c.isDownloaded));
   }, [chapters, deleteChapters]);
 
+  React.useEffect(() => {
+    if (!novel) {
+      return;
+    }
+    getAiNovel(novel.id).then(aiNovel => setAiEnabled(Boolean(aiNovel?.enabled)));
+  }, [novel]);
+
   const shareNovel = useCallback(() => {
     if (!novel) {
       return;
@@ -110,6 +122,23 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
       message: resolveUrl(novel.pluginId, novel.path, true),
     });
   }, [novel]);
+
+  const toggleAi = useCallback(async () => {
+    if (!novel) {
+      return;
+    }
+    if (!aiSettings.enabled) {
+      showToast(getString('ai.errors.enableFeature'));
+      return;
+    }
+    if (!aiSettings.baseUrl.trim()) {
+      showToast(getString('ai.errors.configureBackend'));
+      return;
+    }
+    indexNovel(novel.id, novel.name);
+    setAiEnabled(true);
+    showToast(getString('ai.indexing.started'));
+  }, [aiSettings.baseUrl, aiSettings.enabled, indexNovel, navigation, novel]);
 
   const [jumpToChapterModal, showJumpToChapterModal] = useState(false);
   const {
@@ -282,6 +311,12 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
               downloadChapters={downloadChs}
               showEditInfoModal={showEditInfoModal}
               setCustomNovelCover={setCustomNovelCover}
+              toggleAi={toggleAi}
+              aiLabel={
+                aiEnabled
+                  ? getString('ai.novel.reindex')
+                  : getString('ai.novel.enable')
+              }
               downloadCustomChapterModal={openDlChapterModal}
               showJumpToChapterModal={showJumpToChapterModal}
               shareNovel={shareNovel}

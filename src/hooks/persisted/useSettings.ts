@@ -12,6 +12,7 @@ export const BROWSE_SETTINGS = 'BROWSE_SETTINGS';
 export const LIBRARY_SETTINGS = 'LIBRARY_SETTINGS';
 export const CHAPTER_GENERAL_SETTINGS = 'CHAPTER_GENERAL_SETTINGS';
 export const CHAPTER_READER_SETTINGS = 'CHAPTER_READER_SETTINGS';
+export const AI_SETTINGS = 'AI_SETTINGS';
 
 export interface AppSettings {
   /**
@@ -121,6 +122,16 @@ export interface ChapterReaderSettings {
   epubUseCustomJS: boolean;
 }
 
+export interface AiSettings {
+  enabled: boolean;
+  baseUrl: string;
+  apiKey: string;
+  timeoutMs: number;
+  embeddingModel: string;
+  rerankerModel: string;
+  answerModel: string;
+}
+
 const initialAppSettings: AppSettings = {
   /**
    * General settings
@@ -209,6 +220,16 @@ export const initialChapterReaderSettings: ChapterReaderSettings = {
   epubUseAppTheme: false,
   epubUseCustomCSS: false,
   epubUseCustomJS: false,
+};
+
+export const initialAiSettings: AiSettings = {
+  enabled: false,
+  baseUrl: '',
+  apiKey: '',
+  timeoutMs: 30000,
+  embeddingModel: 'BAAI/bge-m3',
+  rerankerModel: 'BAAI/bge-reranker-v2-m3',
+  answerModel: 'qwen/qwen3-235b-a22b-2507',
 };
 
 export const useAppSettings = () => {
@@ -318,5 +339,18 @@ export const useChapterReaderSettings = () => {
     setChapterReaderSettings,
     saveCustomReaderTheme,
     deleteCustomReaderTheme,
+  };
+};
+
+export const useAiSettings = () => {
+  const [aiSettings = initialAiSettings, setSettings] =
+    useMMKVObject<AiSettings>(AI_SETTINGS);
+
+  const setAiSettings = (values: Partial<AiSettings>) =>
+    setSettings({ ...aiSettings, ...values });
+
+  return {
+    ...aiSettings,
+    setAiSettings,
   };
 };

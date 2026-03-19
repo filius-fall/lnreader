@@ -16,6 +16,7 @@ import { createBackup, restoreBackup } from './backup/local';
 import { migrateNovel, MigrateNovelData } from './migrate/migrateNovel';
 import { downloadChapter } from './download/downloadChapter';
 import { askForPostNotificationsPermission } from '@utils/askForPostNoftificationsPermission';
+import { indexNovelAi } from './ai/indexNovel';
 
 type taskNames =
   | 'IMPORT_EPUB'
@@ -27,7 +28,8 @@ type taskNames =
   | 'LOCAL_BACKUP'
   | 'LOCAL_RESTORE'
   | 'MIGRATE_NOVEL'
-  | 'DOWNLOAD_CHAPTER';
+  | 'DOWNLOAD_CHAPTER'
+  | 'INDEX_NOVEL_AI';
 
 export type BackgroundTask =
   | {
@@ -51,10 +53,15 @@ export type BackgroundTask =
   | { name: 'LOCAL_BACKUP' }
   | { name: 'LOCAL_RESTORE' }
   | { name: 'MIGRATE_NOVEL'; data: MigrateNovelData }
-  | DownloadChapterTask;
+  | DownloadChapterTask
+  | IndexNovelAiTask;
 export type DownloadChapterTask = {
   name: 'DOWNLOAD_CHAPTER';
   data: { chapterId: number; novelName: string; chapterName: string };
+};
+export type IndexNovelAiTask = {
+  name: 'INDEX_NOVEL_AI';
+  data: { novelId: number; novelName: string };
 };
 
 export type BackgroundTaskMetadata = {
@@ -101,7 +108,7 @@ export default class ServiceManager {
       return false;
     }
     return (
-      ['DOWNLOAD_CHAPTER', 'IMPORT_EPUB', 'MIGRATE_NOVEL'] as Array<
+      ['DOWNLOAD_CHAPTER', 'IMPORT_EPUB', 'MIGRATE_NOVEL', 'INDEX_NOVEL_AI'] as Array<
         BackgroundTask['name']
       >
     ).includes(task.name);
@@ -258,6 +265,8 @@ export default class ServiceManager {
         return migrateNovel(task.task.data, this.setMeta.bind(this));
       case 'DOWNLOAD_CHAPTER':
         return downloadChapter(task.task.data, this.setMeta.bind(this));
+      case 'INDEX_NOVEL_AI':
+        return indexNovelAi(task.task.data, this.setMeta.bind(this));
     }
   }
 
@@ -275,6 +284,7 @@ export default class ServiceManager {
       'LOCAL_RESTORE': 0,
       'MIGRATE_NOVEL': 0,
       'DOWNLOAD_CHAPTER': 0,
+      'INDEX_NOVEL_AI': 0,
     };
     const startingTasks = manager.getTaskList();
     const tasksSet = new Set(startingTasks.map(t => t.id));
@@ -367,6 +377,10 @@ export default class ServiceManager {
         return getString('notifications.LOCAL_BACKUP');
       case 'LOCAL_RESTORE':
         return getString('notifications.LOCAL_RESTORE');
+      case 'INDEX_NOVEL_AI':
+        return `${getString('notifications.INDEX_NOVEL_AI')}: ${
+          task.data?.novelName || ''
+        }`;
       default:
         return 'Unknown Task';
     }
@@ -392,6 +406,8 @@ export default class ServiceManager {
               progressText:
                 backgroundTask.name === 'DOWNLOAD_CHAPTER'
                   ? (backgroundTask as DownloadChapterTask).data?.chapterName
+                  : backgroundTask.name === 'INDEX_NOVEL_AI'
+                    ? (backgroundTask as IndexNovelAiTask).data?.novelName
                   : undefined,
             },
             id: makeId(),
@@ -429,6 +445,8 @@ export default class ServiceManager {
           progressText:
             task.name === 'DOWNLOAD_CHAPTER'
               ? task.data?.chapterName
+              : task.name === 'INDEX_NOVEL_AI'
+                ? task.data?.novelName
               : undefined,
         },
         id: makeId(),

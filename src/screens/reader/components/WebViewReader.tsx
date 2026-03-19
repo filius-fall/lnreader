@@ -40,10 +40,12 @@ type WebViewPostEvent = {
   autoStartTTS?: boolean;
   index?: number;
   total?: number;
+  text?: string;
 };
 
 type WebViewReaderProps = {
   onPress(): void;
+  onAskAi(text: string): void;
 };
 
 const onLogMessage = (payload: { nativeEvent: { data: string } }) => {
@@ -63,7 +65,7 @@ const assetsUriPrefix = __DEV__
   ? 'http://localhost:8081/assets'
   : 'file:///android_asset';
 
-const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
+const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress, onAskAi }) => {
   const {
     novel,
     chapter,
@@ -441,6 +443,11 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
               updateTTSPlaybackState(isReading);
             }
             break;
+          case 'ask-ai':
+            if (typeof event.text === 'string' && event.text.trim()) {
+              onAskAi(event.text.trim());
+            }
+            break;
         }
       }}
       source={{
@@ -541,6 +548,22 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
               <script src="${pluginCustomJS}"></script>
               <script>
                 ${readerSettings.customJS}
+                (function() {
+                  const postSelection = () => {
+                    const text = String(window.getSelection?.()?.toString?.() || '').trim();
+                    if (!text) {
+                      return;
+                    }
+                    window.ReactNativeWebView.postMessage(JSON.stringify({
+                      type: 'ask-ai',
+                      text,
+                    }));
+                  };
+                  document.addEventListener('selectionchange', () => {
+                    clearTimeout(window.__lnreaderAiSelectionTimer);
+                    window.__lnreaderAiSelectionTimer = setTimeout(postSelection, 350);
+                  });
+                })();
               </script>
           </html>
           `,
